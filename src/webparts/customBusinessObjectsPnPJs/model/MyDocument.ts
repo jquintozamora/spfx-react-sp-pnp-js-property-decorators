@@ -2,7 +2,7 @@ import { Item, ODataEntity, ODataParser, FetchOptions } from "sp-pnp-js";
 import { select, expand, getSymbol } from "../utils/decorators";
 import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
 
-
+// sample intheriting single Item
 export class MyDocument extends Item {
 
   @select()

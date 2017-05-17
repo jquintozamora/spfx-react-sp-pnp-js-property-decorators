@@ -15,6 +15,7 @@ export class MyDocuments extends Items {
   @expand("File/Length")
   public Size: number;
 
+
   // public CustomProps: string = "Custom Prop to pass";
 
   // override get to enfore select and expand for our fields to always optimize
@@ -29,17 +30,6 @@ export class MyDocuments extends Items {
     return super.get.call(this, parser, getOptions);
   }
 
-  // override get to enfore select and expand for our fields to always optimize
-  // used to solve MyDocument[] type checking
-  public getAs<T>(parser?: ODataParser<MyDocuments>, getOptions?: FetchOptions): Promise<T> {
-    this
-      ._setCustomQueryFromDecorator("select")
-      ._setCustomQueryFromDecorator("expand");
-    if (parser === undefined) {
-      parser = new SelectDecoratorsParser<MyDocuments>(MyDocuments);
-    }
-    return super.get.call(this, parser, getOptions);
-  }
 
   private _setCustomQueryFromDecorator(parameter: string): MyDocuments {
     const sym: string = getSymbol(parameter);

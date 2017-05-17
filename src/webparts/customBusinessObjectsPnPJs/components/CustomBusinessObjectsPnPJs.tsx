@@ -4,6 +4,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 // import model
 import { MyDocument } from "../model/MyDocument";
+import { MyDocuments } from "../model/MyDocuments";
 
 // import pnp and pnp logging system
 import pnp from "sp-pnp-js";
@@ -32,30 +33,30 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     return (
       <div className={styles.container}>
         <div className={"ms-Grid-row ms-bgColor-themeDark ms-fontColor-white " + styles.row}>
-        <div className="ms-Grid-col ms-u-lg10 ms-u-xl8 ms-u-xlPush2 ms-u-lgPush1">
-          <span className="ms-font-xl ms-fontColor-white">Welcome to SharePoint Async Await SP PnP JS Demo!</span>
-          <div>
-            {this._gerErrors()}
-          </div>
-          <p className="ms-font-l ms-fontColor-white">List of documents:</p>
-          <div>
-            <div className={styles.row}>
-              <div className={styles.left}>Name</div>
-              <div className={styles.right}>Size (KB)</div>
-              <div className={styles.clear + " " + styles.header}></div>
+          <div className="ms-Grid-col ms-u-lg10 ms-u-xl8 ms-u-xlPush2 ms-u-lgPush1">
+            <span className="ms-font-xl ms-fontColor-white">Welcome to SharePoint Async Await SP PnP JS Demo!</span>
+            <div>
+              {this._gerErrors()}
             </div>
-            {this.state.myDocuments.map((item) => {
-              return (
-                <div className={styles.row}>
-                  <div className={styles.left}>{item.Name}</div>
-                  <div className={styles.right}>{(item.Size / 1024).toFixed(2)}</div>
-                  <div className={styles.clear}></div>
-                </div>
-              );
-            })}
+            <p className="ms-font-l ms-fontColor-white">List of documents:</p>
+            <div>
+              <div className={styles.row}>
+                <div className={styles.left}>Name</div>
+                <div className={styles.right}>Size (KB)</div>
+                <div className={styles.clear + " " + styles.header}></div>
+              </div>
+              {this.state.myDocuments.map((item) => {
+                return (
+                  <div className={styles.row}>
+                    <div className={styles.left}>{item.Name}</div>
+                    <div className={styles.right}>{(item.Size / 1024).toFixed(2)}</div>
+                    <div className={styles.clear}></div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>
       </div >
     );
   }
@@ -120,7 +121,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(myDocumentWithCustomObject);
 
 
-      const myDocumentsWithCustomObject: MyDocument[] = await pnp.sp
+      const myDocumentsWithCustomObjectAsDocument: MyDocument[] = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -128,17 +129,33 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         // using as("Model") overrides select and expand queries
         // that´s where the MAGIC happends as even if we are using
         // items (item collection) it will use the proper query
+        // *Note that the downside using this approach is after .as(MyDocument)
+        //   we can't use QueryableCollection methods as the type is transformed
+        //   to Item instead of Items
         .as(MyDocument)
         // using MyDocument[] match the type checking for the returned object
         // and avoid javaScript error
         .getAs<MyDocument[]>();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators
-      console.log(myDocumentsWithCustomObject);
+      console.log(myDocumentsWithCustomObjectAsDocument);
+
+
+      const myDocumentsWithCustomObjectAsDocuments: MyDocument[] = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        // using as("Model") overrides select and expand queries
+        .as(MyDocuments)
+        .get();
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentsWithCustomObjectAsDocuments);
 
 
       // set our Component´s State
-      this.setState({ ...this.state, myDocuments: myDocumentsWithCustomObject });
+      this.setState({ ...this.state, myDocuments: myDocumentsWithCustomObjectAsDocuments });
 
     } catch (error) {
       // set a new state conserving the previous state + the new error

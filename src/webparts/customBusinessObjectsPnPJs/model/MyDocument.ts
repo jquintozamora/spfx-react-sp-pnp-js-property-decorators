@@ -15,7 +15,8 @@ export class MyDocument extends Item {
   @expand("File/Length")
   public Size: number;
 
-  // public CustomProps: string = "Custom Prop to pass";
+
+  public CustomProps: string = "Custom Prop to pass";
 
   // override get to enfore select and expand for our fields to always optimize
   public get(parser?: ODataParser<any>, getOptions?: FetchOptions): Promise<any> {

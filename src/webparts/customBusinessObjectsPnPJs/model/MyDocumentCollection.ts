@@ -3,7 +3,7 @@ import { select, expand, getSymbol } from "../utils/decorators";
 import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
 
 
-export class MyDocuments extends Items {
+export class MyDocumentCollection extends Items {
 
   @select()
   public Title: string;
@@ -25,13 +25,14 @@ export class MyDocuments extends Items {
       ._setCustomQueryFromDecorator("select")
       ._setCustomQueryFromDecorator("expand");
     if (parser === undefined) {
-      parser = ODataEntityArray(MyDocuments);
+      // parser = ODataEntityArray(MyDocuments);
+      parser = new SelectDecoratorsParser<MyDocumentCollection>(MyDocumentCollection);
     }
     return super.get.call(this, parser, getOptions);
   }
 
 
-  private _setCustomQueryFromDecorator(parameter: string): MyDocuments {
+  private _setCustomQueryFromDecorator(parameter: string): MyDocumentCollection {
     const sym: string = getSymbol(parameter);
     // get pre-saved select and expand props from decorators
     const arrayprops: { propName: string, queryName: string }[] = this[sym];

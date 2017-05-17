@@ -2,21 +2,21 @@ import { ODataParserBase, QueryableConstructor, Util, Logger, LogLevel } from "s
 import { getEntityUrl } from "sp-pnp-js/lib/sharepoint/odata";
 import { getSymbol } from "../utils/decorators";
 
-export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
+// export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
 
-    constructor(protected factory: QueryableConstructor<T>) {
-        super();
-    }
+//     constructor(protected factory: QueryableConstructor<T>) {
+//         super();
+//     }
 
-    public parse(r: Response): Promise<T[]> {
-        return super.parse(r).then((d: any[]) => {
-            return d.map(v => {
-                const o = <T>new this.factory(getEntityUrl(v), null);
-                return Util.extend(o, v);
-            });
-        });
-    }
-}
+//     public parse(r: Response): Promise<T[]> {
+//         return super.parse(r).then((d: any[]) => {
+//             return d.map(v => {
+//                 const o = <T>new this.factory(getEntityUrl(v), null);
+//                 return Util.extend(o, v);
+//             });
+//         });
+//     }
+// }
 
 export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
 

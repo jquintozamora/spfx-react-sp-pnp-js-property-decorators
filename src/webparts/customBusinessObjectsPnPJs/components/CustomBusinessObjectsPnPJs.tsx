@@ -4,7 +4,7 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 // import model
 import { MyDocument } from "../model/MyDocument";
-import { MyDocuments } from "../model/MyDocuments";
+import { MyDocumentCollection } from "../model/MyDocumentCollection";
 
 // import pnp and pnp logging system
 import pnp from "sp-pnp-js";
@@ -71,7 +71,13 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     console.log("loadPnPJsLibrary");
     try {
 
-      const myDocument = await pnp.sp
+      console.log("#############################");
+      console.log("#  Query only one document  #");
+      console.log("#############################");
+      console.log("*************************************************************");
+      console.log("***  One document selecting all properties");
+      console.log("*************************************************************");
+      const myDocument: any = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -81,8 +87,10 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       // query all item's properties
       console.log(myDocument);
 
-
-      const myDocumentGetAs = await pnp.sp
+      console.log("*************************************************************");
+      console.log("***  One document with getAs<MyDocument>()");
+      console.log("*************************************************************");
+      const myDocumentGetAs: MyDocument = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -92,8 +100,26 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       // query all item's properties, exactly the same result as before
       console.log(myDocumentGetAs);
 
+      console.log("*************************************************************");
+      console.log("***  One document using select, expand and get()");
+      console.log("*************************************************************");
+      const myDocumentWithSelectExpandGet: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        .getById(1)
+        .select("Title", "FileLeafRef", "File/Length")
+        .expand("File/Length")
+        .get();
+      // query only selected properties, but ideally should
+      // get the props from our custom object
+      console.log(myDocumentWithSelectExpandGet);
 
-      const myDocumentGetAsWithSelectExpand = await pnp.sp
+      console.log("*************************************************************");
+      console.log("***  One document using select, expand and getAs<MyDocument>()");
+      console.log("*************************************************************");
+      const myDocumentWithSelectExpandGetAs: MyDocument = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -104,10 +130,28 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .getAs<MyDocument>();
       // query only selected properties, but ideally should
       // get the props from our custom object
-      console.log(myDocumentGetAsWithSelectExpand);
+      console.log(myDocumentWithSelectExpandGetAs);
 
+      console.log("*************************************************************");
+      console.log("***  One document using as(MyDocument) and get()");
+      console.log("*************************************************************");
+      const myDocumentWithCustomObjectGet: MyDocument = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        .getById(1)
+        // using as("Model") overrides select and expand queries
+        .as(MyDocument)
+        .get();
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentWithCustomObjectGet);
 
-      const myDocumentWithCustomObject: MyDocument = await pnp.sp
+      console.log("*************************************************************");
+      console.log("***  One document using as(MyDocument) and getAs<MyDocument>()");
+      console.log("*************************************************************");
+      const myDocumentWithCustomObjectGetAs: MyDocument = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -118,9 +162,12 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .getAs<MyDocument>();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators
-      console.log(myDocumentWithCustomObject);
+      console.log(myDocumentWithCustomObjectGetAs);
 
 
+      console.log("###############################");
+      console.log("#  Query document collection  #");
+      console.log("###############################");
       const myDocumentsWithCustomObjectAsDocument: MyDocument[] = await pnp.sp
         .web
         .lists
@@ -147,7 +194,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .getByTitle(libraryName)
         .items
         // using as("Model") overrides select and expand queries
-        .as(MyDocuments)
+        .as(MyDocumentCollection)
         .get();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators

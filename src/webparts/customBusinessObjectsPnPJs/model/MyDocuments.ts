@@ -1,9 +1,9 @@
-import { Item, ODataEntity, ODataParser, FetchOptions } from "sp-pnp-js";
+import { Items, ODataEntityArray, ODataParser, FetchOptions } from "sp-pnp-js";
 import { select, expand, getSymbol } from "../utils/decorators";
 import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
 
 
-export class MyDocument extends Item {
+export class MyDocuments extends Items {
 
   @select()
   public Title: string;
@@ -24,24 +24,24 @@ export class MyDocument extends Item {
       ._setCustomQueryFromDecorator("select")
       ._setCustomQueryFromDecorator("expand");
     if (parser === undefined) {
-      parser = ODataEntity(MyDocument);
+      parser = ODataEntityArray(MyDocuments);
     }
     return super.get.call(this, parser, getOptions);
   }
 
   // override get to enfore select and expand for our fields to always optimize
   // used to solve MyDocument[] type checking
-  public getAs<T>(parser?: ODataParser<MyDocument>, getOptions?: FetchOptions): Promise<T> {
+  public getAs<T>(parser?: ODataParser<MyDocuments>, getOptions?: FetchOptions): Promise<T> {
     this
       ._setCustomQueryFromDecorator("select")
       ._setCustomQueryFromDecorator("expand");
     if (parser === undefined) {
-      parser = new SelectDecoratorsParser<MyDocument>(MyDocument);
+      parser = new SelectDecoratorsParser<MyDocuments>(MyDocuments);
     }
     return super.get.call(this, parser, getOptions);
   }
 
-  private _setCustomQueryFromDecorator(parameter: string): MyDocument {
+  private _setCustomQueryFromDecorator(parameter: string): MyDocuments {
     const sym: string = getSymbol(parameter);
     // get pre-saved select and expand props from decorators
     const arrayprops: { propName: string, queryName: string }[] = this[sym];

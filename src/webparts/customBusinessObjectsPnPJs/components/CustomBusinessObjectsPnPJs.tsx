@@ -17,7 +17,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     super(props);
     // set initial state
     this.state = {
-      myDocuments: null,
+      myDocuments: [],
       errors: []
     };
 
@@ -30,20 +30,33 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
 
   public render(): React.ReactElement<ICustomBusinessObjectsPnPJsProps> {
     return (
-      <div className={styles.helloWorld}>
-        <div className={styles.container}>
-          <div className={"ms-Grid-row ms-bgColor-themeDark ms-fontColor-white " + styles.row}>
-            <div className="ms-Grid-col ms-u-lg10 ms-u-xl8 ms-u-xlPush2 ms-u-lgPush1">
-              <span className="ms-font-xl ms-fontColor-white">Welcome to SharePoint!</span>
-              <p className="ms-font-l ms-fontColor-white">Customize SharePoint experiences using Web Parts.</p>
-              <p className="ms-font-l ms-fontColor-white">{escape(this.props.description)}</p>
-              <a href="https://aka.ms/spfx" className={styles.button}>
-                <span className={styles.label}>Learn more</span>
-              </a>
+      <div className={styles.container}>
+        <div className={"ms-Grid-row ms-bgColor-themeDark ms-fontColor-white " + styles.row}>
+        <div className="ms-Grid-col ms-u-lg10 ms-u-xl8 ms-u-xlPush2 ms-u-lgPush1">
+          <span className="ms-font-xl ms-fontColor-white">Welcome to SharePoint Async Await SP PnP JS Demo!</span>
+          <div>
+            {this._gerErrors()}
+          </div>
+          <p className="ms-font-l ms-fontColor-white">List of documents:</p>
+          <div>
+            <div className={styles.row}>
+              <div className={styles.left}>Name</div>
+              <div className={styles.right}>Size (KB)</div>
+              <div className={styles.clear + " " + styles.header}></div>
             </div>
+            {this.state.myDocuments.map((item) => {
+              return (
+                <div className={styles.row}>
+                  <div className={styles.left}>{item.Name}</div>
+                  <div className={styles.right}>{(item.Size / 1024).toFixed(2)}</div>
+                  <div className={styles.clear}></div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
+      </div >
     );
   }
 
@@ -99,7 +112,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .getByTitle(libraryName)
         .items
         .getById(1)
-        // Using as("Model") overrides select and expand queries
+        // using as("Model") overrides select and expand queries
         .as(MyDocument)
         .getAs<MyDocument>();
       // query only selected properties, using our Custom Model properties
@@ -112,21 +125,20 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .lists
         .getByTitle(libraryName)
         .items
-        // Using as("Model") overrides select and expand queries
-        // That´s where the MAGIC happends as even if we are using
-        // ITEMS (item collection) it will use the proper query
+        // using as("Model") overrides select and expand queries
+        // that´s where the MAGIC happends as even if we are using
+        // items (item collection) it will use the proper query
         .as(MyDocument)
-        // Using MyDocument[] match the type checking for the returned object
+        // using MyDocument[] match the type checking for the returned object
         // and avoid javaScript error
         .getAs<MyDocument[]>();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators
       console.log(myDocumentsWithCustomObject);
 
-      debugger;
 
-      // Set our Component´s State
-      // this.setState({ ...this.state, myDocuments });
+      // set our Component´s State
+      this.setState({ ...this.state, myDocuments: myDocumentsWithCustomObject });
 
     } catch (error) {
       // set a new state conserving the previous state + the new error
@@ -136,6 +148,20 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         errors: [...this.state.errors, "Error getting ItemCount for " + libraryName + ". Error: " + error]
       });
     }
+  }
+
+  private _gerErrors() {
+    return this.state.errors.length > 0
+      ?
+      <div style={{ color: "orangered" }} >
+        <div>Errors:</div>
+        {
+          this.state.errors.map((item) => {
+            return (<div>{JSON.stringify(item)}</div>);
+          })
+        }
+      </div>
+      : null;
   }
 
 }

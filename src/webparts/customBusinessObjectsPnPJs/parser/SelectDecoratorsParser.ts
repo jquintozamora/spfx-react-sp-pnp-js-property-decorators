@@ -2,28 +2,46 @@ import { ODataParserBase, QueryableConstructor, Util, Logger, LogLevel } from "s
 import { getEntityUrl } from "sp-pnp-js/lib/sharepoint/odata";
 import { getSymbol } from "../utils/decorators";
 
-// export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
 
-//     constructor(protected factory: QueryableConstructor<T>) {
-//         super();
-//     }
-
-//     public parse(r: Response): Promise<T[]> {
-//         return super.parse(r).then((d: any[]) => {
-//             return d.map(v => {
-//                 const o = <T>new this.factory(getEntityUrl(v), null);
-//                 return Util.extend(o, v);
-//             });
-//         });
-//     }
-// }
+export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
+  private _returnOnlySelectedWithDecorators = false;
+  constructor(protected factory: QueryableConstructor<T>, returnOnlySelectedWithDecorators?: boolean) {
+    super();
+    this._returnOnlySelectedWithDecorators = returnOnlySelectedWithDecorators;
+  }
+  public parse(r: Response): Promise<T[]> {
+    return super.parse(r).then((d: any[]) => {
+      if ("length" in d) {
+        return d.map(v => {
+          const o = <T>new this.factory(getEntityUrl(v), null);
+          const combinedWithResults: any = Util.extend(o, v);
+          const sym: string = getSymbol("select");
+          if (this._returnOnlySelectedWithDecorators === true) {
+            return SelectDecoratorsUtils.ProcessSingle(combinedWithResults, sym);
+          } else {
+            return Util.extend(combinedWithResults, SelectDecoratorsUtils.ProcessSingle(combinedWithResults, sym));
+          }
+        });
+      } else {
+        Logger.log({
+          data: {
+            d
+          },
+          level: LogLevel.Error,
+          message: "[SelectDecoratorsArrayParser] - response isn't a collection."
+        });
+        return null;
+      }
+    });
+  }
+}
 
 export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
-
-  constructor(protected factory: QueryableConstructor<T>) {
+  private _returnOnlySelectedWithDecorators = false;
+  constructor(protected factory: QueryableConstructor<T>, returnOnlySelectedWithDecorators?: boolean) {
     super();
+    this._returnOnlySelectedWithDecorators = returnOnlySelectedWithDecorators;
   }
-
   public parse(r: Response): Promise<T> {
     // we don't need to handleError inside as we are calling directly
     // to super.parse(r) and it's already handled there
@@ -32,39 +50,50 @@ export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
       const combinedWithResults: any = Util.extend(classDefaults, d);
       const sym: string = getSymbol("select");
       if ("length" in combinedWithResults) {
-        return this._processCollection(combinedWithResults, sym);
+        Logger.log({
+          level: LogLevel.Warning,
+          message: "[SelectDecoratorsParser] - response is a collection. Consider using Array Parser (SelectDecoratorsArrayParser)."
+        });
+        // return SelectDecoratorsUtils.ProcessCollection(combinedWithResults, sym);
+        return combinedWithResults;
       } else {
-        return this._processSingle(combinedWithResults, sym);
+        if (this._returnOnlySelectedWithDecorators === true) {
+          return SelectDecoratorsUtils.ProcessSingle(combinedWithResults, sym);
+        } else {
+          return Util.extend(combinedWithResults, SelectDecoratorsUtils.ProcessSingle(combinedWithResults, sym));
+        }
       }
     });
   }
+}
 
+class SelectDecoratorsUtils {
   // get only custom model properties with @select decorator and return single item
-  private _processSingle(combinedWithResults: T, symbolKey: string): T {
+  static ProcessSingle(combinedWithResults: any, symbolKey: string): any {
     const arrayprops: { propName: string, queryName: string }[] = combinedWithResults[symbolKey];
-    let newObj: T = {} as T;
+    let newObj = {};
     arrayprops.forEach((item) => {
-      newObj[item.propName] = this._getDescendantProp(combinedWithResults, item.queryName);
+      newObj[item.propName] = SelectDecoratorsUtils.GetDescendantProp(combinedWithResults, item.queryName);
     });
     return newObj;
   }
 
   // get only custom model properties with @select decorator and return item collection
-  private _processCollection(combinedWithResults: T[], symbolKey: string): T[] {
-    let newArray: T[] = [];
+  static ProcessCollection(combinedWithResults: any[], symbolKey: string): any[] {
+    let newArray: any[] = [];
     const arrayprops: { propName: string, queryName: string }[] = combinedWithResults[symbolKey];
     for (let i: number = 0; i < combinedWithResults.length; i++) {
-      const r: T = combinedWithResults[i];
-      let newObj: T = {} as T;
+      const r: any = combinedWithResults[i];
+      let newObj = {};
       arrayprops.forEach((item) => {
-        newObj[item.propName] = this._getDescendantProp(r, item.queryName);
+        newObj[item.propName] = SelectDecoratorsUtils.GetDescendantProp(r, item.queryName);
       });
       newArray = newArray.concat(newObj);
     }
     return newArray;
   }
 
-  private _getDescendantProp(obj, objectString: string) {
+  static GetDescendantProp(obj, objectString: string) {
     var arr: string[] = objectString.split("/");
     if (arr.length > 1 && arr[0] !== "") {
       while (arr.length) {
@@ -89,5 +118,4 @@ export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
     }
     return null;
   }
-
 }

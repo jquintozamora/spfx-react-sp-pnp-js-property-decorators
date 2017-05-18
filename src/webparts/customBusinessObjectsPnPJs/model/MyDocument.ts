@@ -1,4 +1,4 @@
-import { Item, ODataEntity, ODataParser, FetchOptions } from "sp-pnp-js";
+import { Item, ODataEntity, ODataParser, FetchOptions, Logger, LogLevel } from "sp-pnp-js";
 import { select, expand, getSymbol } from "../utils/decorators";
 import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
 
@@ -16,7 +16,7 @@ export class MyDocument extends Item {
   public Size: number;
 
 
-  public CustomProps: string = "Custom Prop to pass";
+  public CustomItemProps: string = "Custom Prop to pass";
 
   // override get to enfore select and expand for our fields to always optimize
   public get(parser?: ODataParser<any>, getOptions?: FetchOptions): Promise<any> {
@@ -31,7 +31,6 @@ export class MyDocument extends Item {
   }
 
   // override get to enfore select and expand for our fields to always optimize
-  // used to solve MyDocument[] type checking
   public getAs<T>(parser?: ODataParser<MyDocument>, getOptions?: FetchOptions): Promise<T> {
     this
       ._setCustomQueryFromDecorator("select")
@@ -46,7 +45,15 @@ export class MyDocument extends Item {
     const sym: string = getSymbol(parameter);
     // get pre-saved select and expand props from decorators
     const arrayprops: { propName: string, queryName: string }[] = this[sym];
-    let list: string = arrayprops.map(i => i.queryName).join(",");
+    let list: string = "";
+    if (arrayprops !== undefined && arrayprops !== null) {
+      list = arrayprops.map(i => i.queryName).join(",");
+    } else {
+      Logger.log({
+        level: LogLevel.Warning,
+        message: "[_setCustomQueryFromDecorator] - empty property: " + parameter + "."
+      });
+    }
     // use apply and call to manipulate the request into the form we want
     // if another select isn't in place, let's default to only ever getting our fields.
     // implement method chain

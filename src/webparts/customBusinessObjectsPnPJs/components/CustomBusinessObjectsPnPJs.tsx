@@ -1,10 +1,12 @@
-import * as React from 'react';
-import styles from './CustomBusinessObjectsPnPJs.module.scss';
-import { escape } from '@microsoft/sp-lodash-subset';
+import * as React from "react";
+import styles from "./CustomBusinessObjectsPnPJs.module.scss";
 
-// import model
+// import models
 import { MyDocument } from "../model/MyDocument";
 import { MyDocumentCollection } from "../model/MyDocumentCollection";
+
+// import custom parsers
+import { SelectDecoratorsParser, SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParser";
 
 // import pnp and pnp logging system
 import pnp from "sp-pnp-js";
@@ -34,7 +36,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       <div className={styles.container}>
         <div className={"ms-Grid-row ms-bgColor-themeDark ms-fontColor-white " + styles.row}>
           <div className="ms-Grid-col ms-u-lg10 ms-u-xl8 ms-u-xlPush2 ms-u-lgPush1">
-            <span className="ms-font-xl ms-fontColor-white">Welcome to SharePoint Async Await SP PnP JS Demo!</span>
+            <span className="ms-font-xl ms-fontColor-white">Welcome to Custom Business Objects, Decorators and Renders Demo!</span>
             <div>
               {this._gerErrors()}
             </div>
@@ -117,6 +119,22 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(myDocumentWithSelectExpandGet);
 
       console.log("*************************************************************");
+      console.log("***  One document using select, expand and get() with MyDocument Custom Parser");
+      console.log("*************************************************************");
+      const myDocumentWithSelectExpandGetParser: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        .getById(1)
+        .select("Title", "FileLeafRef", "File/Length")
+        .expand("File/Length")
+        .get(new SelectDecoratorsParser<MyDocument>(MyDocument));
+      // query only selected properties, but ideally should
+      // get the props from our custom object
+      console.log(myDocumentWithSelectExpandGetParser);
+
+      console.log("*************************************************************");
       console.log("***  One document using select, expand and getAs<MyDocument>()");
       console.log("*************************************************************");
       const myDocumentWithSelectExpandGetAs: MyDocument = await pnp.sp
@@ -133,7 +151,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(myDocumentWithSelectExpandGetAs);
 
       console.log("*************************************************************");
-      console.log("***  One document using as(MyDocument) and get()");
+      console.log("***  One document using as(MyDocument) and get() with Default Parser");
       console.log("*************************************************************");
       const myDocumentWithCustomObjectGet: MyDocument = await pnp.sp
         .web
@@ -159,6 +177,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         .getById(1)
         // using as("Model") overrides select and expand queries
         .as(MyDocument)
+        // it's using getAs from MyDocument which has SelectDecoratorsParser
         .getAs<MyDocument>();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators
@@ -168,7 +187,10 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log("###############################");
       console.log("#  Query document collection  #");
       console.log("###############################");
-      const myDocumentsWithCustomObjectAsDocument: MyDocument[] = await pnp.sp
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocument) and get()");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocumentGet: MyDocument[] = await pnp.sp
         .web
         .lists
         .getByTitle(libraryName)
@@ -176,18 +198,31 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         // using as("Model") overrides select and expand queries
         // that´s where the MAGIC happends as even if we are using
         // items (item collection) it will use the proper query
+        .as(MyDocument)
+        .get();
+      console.log(myDocumentsWithCustomObjectAsDocumentGet);
+
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocument) and getAs<MyDocument>()");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocument: MyDocument[] = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
         // *Note that the downside using this approach is after .as(MyDocument)
         //   we can't use QueryableCollection methods as the type is transformed
         //   to Item instead of Items
         .as(MyDocument)
-        // using MyDocument[] match the type checking for the returned object
-        // and avoid javaScript error
         .getAs<MyDocument[]>();
       // query only selected properties, using our Custom Model properties
       // but only those that have the proper @select and @expand decorators
       console.log(myDocumentsWithCustomObjectAsDocument);
 
 
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocumentCollection) and get()");
+      console.log("*************************************************************");
       const myDocumentsWithCustomObjectAsDocuments: MyDocument[] = await pnp.sp
         .web
         .lists
@@ -201,8 +236,70 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(myDocumentsWithCustomObjectAsDocuments);
 
 
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocumentCollection) and getAs<MyDocumentCollection>()");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocumentsGetAs: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        // using as("Model") overrides select and expand queries
+        .as(MyDocumentCollection)
+        .getAs<MyDocumentCollection>();
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentsWithCustomObjectAsDocumentsGetAs);
+
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocumentCollection) and getAsMyDocument()");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocumentsGetAsMyDocument: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        // using as("Model") overrides select and expand queries
+        .as(MyDocumentCollection)
+        .getAsMyDocument();
+        // query only selected properties, using our Custom Model properties
+        // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentsWithCustomObjectAsDocumentsGetAsMyDocument);
+
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocumentCollection) and get() with Custom Array Parser returning only properties with @select");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocumentsGetParserJustSelect: any[] = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        // using as("Model") overrides select and expand queries
+        .as(MyDocumentCollection)
+        .get(new SelectDecoratorsArrayParser<MyDocument>(MyDocument, true));
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentsWithCustomObjectAsDocumentsGetParserJustSelect);
+
+      console.log("*************************************************************");
+      console.log("***  Document Collection using as(MyDocumentCollection) and get() with Custom Array Parser");
+      console.log("*************************************************************");
+      const myDocumentsWithCustomObjectAsDocumentsGetParser: any[] = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        // using as("Model") overrides select and expand queries
+        .as(MyDocumentCollection)
+        .skip(1)
+        // this renderer mix the properties and do the match between the props names and the selected if they have /
+        .get(new SelectDecoratorsArrayParser<MyDocument>(MyDocument));
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
+      console.log(myDocumentsWithCustomObjectAsDocumentsGetParser);
+
       // set our Component´s State
-      this.setState({ ...this.state, myDocuments: myDocumentsWithCustomObjectAsDocuments });
+      this.setState({ ...this.state, myDocuments: myDocumentsWithCustomObjectAsDocumentsGetParser });
 
     } catch (error) {
       // set a new state conserving the previous state + the new error

@@ -1,22 +1,15 @@
-import { Items, ODataEntityArray, ODataParser, FetchOptions } from "sp-pnp-js";
+import { Items, ODataEntityArray, ODataParser, FetchOptions, Logger, LogLevel } from "sp-pnp-js";
 import { select, expand, getSymbol } from "../utils/decorators";
-import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
+import { SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParser";
+
+import { MyDocument } from "./MyDocument";
 
 
 export class MyDocumentCollection extends Items {
 
-  @select()
-  public Title: string;
+  private ItemTemplate: MyDocument = new MyDocument("");
 
-  @select("FileLeafRef")
-  public Name: string;
-
-  @select("File/Length")
-  @expand("File/Length")
-  public Size: number;
-
-
-  // public CustomProps: string = "Custom Prop to pass";
+  public CustomCollectionProps: string = "Custom Collection Prop to pass";
 
   // override get to enfore select and expand for our fields to always optimize
   public get(parser?: ODataParser<any>, getOptions?: FetchOptions): Promise<any> {
@@ -25,8 +18,19 @@ export class MyDocumentCollection extends Items {
       ._setCustomQueryFromDecorator("select")
       ._setCustomQueryFromDecorator("expand");
     if (parser === undefined) {
-      // parser = ODataEntityArray(MyDocuments);
-      parser = new SelectDecoratorsParser<MyDocumentCollection>(MyDocumentCollection);
+      // default parser
+      parser = ODataEntityArray(MyDocument);
+    }
+    return super.get.call(this, parser, getOptions);
+  }
+
+  // override get to enfore select and expand for our fields to always optimize
+  public getAsMyDocument(parser?: ODataParser<MyDocument[]>, getOptions?: FetchOptions): Promise<MyDocument[]> {
+    this
+      ._setCustomQueryFromDecorator("select")
+      ._setCustomQueryFromDecorator("expand");
+    if (parser === undefined) {
+      parser = new SelectDecoratorsArrayParser<MyDocument>(MyDocument);
     }
     return super.get.call(this, parser, getOptions);
   }
@@ -35,8 +39,16 @@ export class MyDocumentCollection extends Items {
   private _setCustomQueryFromDecorator(parameter: string): MyDocumentCollection {
     const sym: string = getSymbol(parameter);
     // get pre-saved select and expand props from decorators
-    const arrayprops: { propName: string, queryName: string }[] = this[sym];
-    let list: string = arrayprops.map(i => i.queryName).join(",");
+    const arrayprops: { propName: string, queryName: string }[] = this.ItemTemplate[sym];
+    let list: string = "";
+    if (arrayprops !== undefined && arrayprops !== null) {
+      list = arrayprops.map(i => i.queryName).join(",");
+    } else {
+      Logger.log({
+        level: LogLevel.Warning,
+        message: "[_setCustomQueryFromDecorator] - empty property: " + parameter + "."
+      });
+    }
     // use apply and call to manipulate the request into the form we want
     // if another select isn't in place, let's default to only ever getting our fields.
     // implement method chain

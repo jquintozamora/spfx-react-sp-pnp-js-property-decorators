@@ -4,9 +4,11 @@ import styles from "./CustomBusinessObjectsPnPJs.module.scss";
 // import models
 import { MyDocument } from "../model/MyDocument";
 import { MyDocumentCollection } from "../model/MyDocumentCollection";
+// initially we import our custom model which extends from Item class from PnP JS Core
+import { MyItem } from "../model/MyItem";
 
 // import custom parsers
-import { SelectDecoratorsParser, SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParser";
+import { SelectDecoratorsParser, SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParsers";
 
 // import pnp and pnp logging system
 import pnp from "sp-pnp-js";
@@ -72,6 +74,61 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
   private async _loadPnPJsLibrary(libraryName: string): Promise<void> {
     console.log("loadPnPJsLibrary");
     try {
+
+
+      console.log("######################################");
+      console.log("# PnP JS Core without custom objects #");
+      console.log("######################################");
+
+      const plainItemAsAny: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle("PnPJSSample")
+        .items
+        .getById(1)
+        .select("ID", "Title", "Category", "Quantity")
+        .get();
+      console.log(plainItemAsAny);
+
+      // plainItemAsAny hasn't intellisense neither type checking using TypeScript
+      console.log(plainItemAsAny.Title);      // compiler: ok (any object), result: Fig
+      console.log(plainItemAsAny.title);      // compiler: ok (any object), result: undefined (posible mistake)
+      console.log(plainItemAsAny.otherProp);  // compiler: ok (any object), result: undefined (posible mistake not having type check)
+
+      // from TypeScript 1.6 we can use as operator like the default way to cast inside .tsx file
+      //  (removing any ambiguity between JSX expressions and the TypeScript prefix cast operator)
+      //  https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-6.html
+      // a workarround for having intellisense and type checking is using as operator with the specific type
+      const plainItemAsObject = plainItemAsAny as { ID: string, Title: string, Category: string, Quantity: number };
+      console.log(plainItemAsObject.Category);   // compiler: ok, result: Fruit
+      // console.log(plainItemAsObject.otherProp);  // compiler: error because otherProp isn't on the defined type
+      console.log(plainItemAsObject);
+
+
+
+      console.log("######################################");
+      console.log("#   PnP JS Core WITH custom objects  #");
+      console.log("######################################");
+
+      const itemCustomObject: MyItem = await pnp.sp
+        .web
+        .lists
+        .getByTitle("PnPJSSample")
+        .items
+        .getById(1)
+        // we don't need the select here as we have already implemented on our custom model
+        // .select("ID", "Title", "Category", "Quantity")
+        // as("model") means PnP JS Core will use the returned object from here and we can use it later using method chaining
+        .as(MyItem)
+        .get();
+      console.log(itemCustomObject);
+
+      // itemCustomObject has intellisense and type checking using TypeScript
+      console.log(itemCustomObject.Title);         // compiler: ok (any object), result: Fig
+      // console.log(itemCustomObject.title);      // compiler: error
+      // console.log(itemCustomObject.otherProp);  // compiler: error
+      console.log(itemCustomObject);
+
 
       console.log("#############################");
       console.log("#  Query only one document  #");
@@ -262,8 +319,8 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
         // using as("Model") overrides select and expand queries
         .as(MyDocumentCollection)
         .getAsMyDocument();
-        // query only selected properties, using our Custom Model properties
-        // but only those that have the proper @select and @expand decorators
+      // query only selected properties, using our Custom Model properties
+      // but only those that have the proper @select and @expand decorators
       console.log(myDocumentsWithCustomObjectAsDocumentsGetAsMyDocument);
 
       console.log("*************************************************************");

@@ -4,7 +4,7 @@ import { Items, ODataEntityArray, ODataParser, FetchOptions, Logger, LogLevel } 
 // consider using polyfill as well
 import { getSymbol } from "../utils/symbol";
 
-import { SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParser";
+import { SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParsers";
 
 // import MyDocument to specify the ItemTemplate
 import { MyDocument } from "./MyDocument";

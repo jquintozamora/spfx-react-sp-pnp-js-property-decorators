@@ -1,6 +1,11 @@
 import { Item, ODataEntity, ODataParser, FetchOptions, Logger, LogLevel } from "sp-pnp-js";
-import { select, expand, getSymbol } from "../utils/decorators";
+import { select, expand } from "../utils/decorators";
 import { SelectDecoratorsParser } from "../parser/SelectDecoratorsParser";
+
+// symbol emulation as it's not supported on IE
+// consider using polyfill as well
+import { getSymbol } from "../utils/symbol";
+
 
 // sample intheriting single Item
 export class MyDocument extends Item {

@@ -1,7 +1,12 @@
 import { Items, ODataEntityArray, ODataParser, FetchOptions, Logger, LogLevel } from "sp-pnp-js";
-import { select, expand, getSymbol } from "../utils/decorators";
+
+// symbol emulation as it's not supported on IE
+// consider using polyfill as well
+import { getSymbol } from "../utils/symbol";
+
 import { SelectDecoratorsArrayParser } from "../parser/SelectDecoratorsParser";
 
+// import MyDocument to specify the ItemTemplate
 import { MyDocument } from "./MyDocument";
 
 

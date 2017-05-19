@@ -1,5 +1,9 @@
 import { Logger, LogLevel } from "sp-pnp-js";
 
+// symbol emulation as it's not supported on IE
+// consider using polyfill as well
+import { getSymbol } from "./symbol";
+
 /*
  * Property Decorators
  */
@@ -17,15 +21,10 @@ export function expand(expandName: string): PropertyDecorator {
 /*
  * decorators utils
  */
-export function getSymbol(key: string): string {
-  // symbol not supported on IE, maybe try with polyfill
-  // const sym: symbol = Symbol.for(key);
-  return "__" + key + "__";
-}
 function setMetadata(target: any, key: string, propName: string, queryName: string): void {
   if (queryName === undefined
-      || queryName === null
-      || queryName === "") {
+    || queryName === null
+    || queryName === "") {
     queryName = propName;
   }
   const sym: string = getSymbol(key);

@@ -1,6 +1,9 @@
 import { ODataParserBase, QueryableConstructor, Util, Logger, LogLevel } from "sp-pnp-js";
 import { getEntityUrl } from "sp-pnp-js/lib/sharepoint/odata";
-import { getSymbol } from "../utils/decorators";
+
+// symbol emulation as it's not supported on IE
+// consider using polyfill as well
+import { getSymbol } from "../utils/symbol";
 
 
 export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {

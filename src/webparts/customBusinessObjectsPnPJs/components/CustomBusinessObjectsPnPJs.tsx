@@ -11,8 +11,8 @@ import { SelectDecoratorsParser, SelectDecoratorsArrayParser } from "../parser/S
 // import pnp and pnp logging system
 import pnp from "sp-pnp-js";
 
-import { ICustomBusinessObjectsPnPJsProps } from './ICustomBusinessObjectsPnPJsProps';
-import { ICustomBusinessObjectsPnPJsState } from './ICustomBusinessObjectsPnPJsState';
+import { ICustomBusinessObjectsPnPJsProps } from "./ICustomBusinessObjectsPnPJsProps";
+import { ICustomBusinessObjectsPnPJsState } from "./ICustomBusinessObjectsPnPJsState";
 
 export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomBusinessObjectsPnPJsProps, ICustomBusinessObjectsPnPJsState> {
 
@@ -306,7 +306,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.error(error);
       this.setState({
         ...this.state,
-        errors: [...this.state.errors, "Error getting ItemCount for " + libraryName + ". Error: " + error]
+        errors: [...this.state.errors, "Error in " + libraryName + ". Error: " + error]
       });
     }
   }

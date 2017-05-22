@@ -6,6 +6,8 @@ import { getSymbol } from "./symbol";
 
 /*
  * Property Decorators
+ * NOTE  Decorators are an experimental feature that may change in future releases.
+ * https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md
  */
 export function select(selectName?: string): PropertyDecorator {
   return function (target: Object, propertyKey: string): void {

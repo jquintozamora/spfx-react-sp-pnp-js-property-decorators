@@ -1,35 +1,55 @@
+/**
+ * Property Decorators implementation
+ *
+ * Read more about
+ *  Experimental Property decorators: https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#property-decorators
+ *  Decorator factories: https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md#decorator-factories
+ *
+ */
+
 import { Logger, LogLevel } from "sp-pnp-js";
 
-// symbol emulation as it's not supported on IE
-// consider using polyfill as well
+// symbol emulation
 import { getSymbol } from "./symbol";
 
-/*
- * Property Decorators
- * NOTE  Decorators are an experimental feature that may change in future releases.
- * https://github.com/Microsoft/TypeScript-Handbook/blob/master/pages/Decorators.md
+
+/**
+ * Decorator factory for select returning Property Decorator
+ * @param queryName internal name of the SP field or path if means expand. Example: Title, File/Length
  */
-export function select(selectName?: string): PropertyDecorator {
-  return function (target: Object, propertyKey: string): void {
-    setMetadata(target, "select", propertyKey, selectName);
+export function select(queryName?: string): PropertyDecorator {   // this is the decorator factory
+  return function (target: any, propertyKey: string): void {   // this is the decorator
+    setMetadata(target, "select", propertyKey, queryName);
   };
 }
-export function expand(expandName: string): PropertyDecorator {
-  return function (target: Object, propertyKey: string): void {
+
+/**
+ * Decorator factory for expand returning Property Decorator
+ * @param expandName expand path. Example: File/Length
+ */
+export function expand(expandName: string): PropertyDecorator {   // this is the decorator factory
+  return function (target: any, propertyKey: string): void {   // this is the decorator
     setMetadata(target, "expand", propertyKey, expandName);
   };
 }
 
-/*
- * decorators utils
+/**
+ * Sets metadata on target object using key as an accessor
+ * Note: I considered to use reflect-metadata API to set metadata, but isn't needed on this scenario
+ *        as we are storing the metadata in the actual object (target).
+ * @param target object / class from where the decorator is called. It will be used to store metadata on its prototype.
+ * @param key key or symbol used as accessor for the metadata
+ * @param propName property name in the class
+ * @param queryName property name in the query
  */
 function setMetadata(target: any, key: string, propName: string, queryName: string): void {
-  if (queryName === undefined
-    || queryName === null
-    || queryName === "") {
+  // string.isNullOrUndefinedOrEmpty
+  if (!(typeof queryName === "string" && queryName.length > 0)) {
     queryName = propName;
   }
+
   const sym: string = getSymbol(key);
+
   // instead of using Map object, we use an array of objects, as Map is not well supported
   // still by all the browsers, consider using Map compiling TypeScript to ES6 and using Babel to transpile to ES5
   let currentValues: { propName: string, queryName: string }[] = target[sym];

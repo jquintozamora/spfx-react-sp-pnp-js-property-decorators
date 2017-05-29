@@ -20,12 +20,10 @@ export class MyDocument extends Item {
   @expand("File/Length")
   public Size: number;
 
-
   public CustomItemProps: string = "Custom Prop to pass";
 
   // override get to enfore select and expand for our fields to always optimize
   public get(parser?: ODataParser<any>, getOptions?: FetchOptions): Promise<any> {
-    // public get(): Promise<MyDocument> {
     this
       ._setCustomQueryFromDecorator("select")
       ._setCustomQueryFromDecorator("expand");

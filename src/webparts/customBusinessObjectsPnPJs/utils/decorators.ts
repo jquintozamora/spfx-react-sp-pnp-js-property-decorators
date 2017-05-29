@@ -18,7 +18,7 @@ import { getSymbol } from "./symbol";
  * @param queryName internal name of the SP field or path if means expand. Example: Title, File/Length
  */
 export function select(queryName?: string): PropertyDecorator {   // this is the decorator factory
-  return function (target: any, propertyKey: string): void {   // this is the decorator
+  return function (target: any, propertyKey: string): void {      // this is the decorator
     setMetadata(target, "select", propertyKey, queryName);
   };
 }
@@ -28,7 +28,7 @@ export function select(queryName?: string): PropertyDecorator {   // this is the
  * @param expandName expand path. Example: File/Length
  */
 export function expand(expandName: string): PropertyDecorator {   // this is the decorator factory
-  return function (target: any, propertyKey: string): void {   // this is the decorator
+  return function (target: any, propertyKey: string): void {      // this is the decorator
     setMetadata(target, "expand", propertyKey, expandName);
   };
 }

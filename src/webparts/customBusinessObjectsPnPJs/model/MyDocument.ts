@@ -33,7 +33,7 @@ export class MyDocument extends Item {
     return super.get.call(this, parser, getOptions);
   }
 
-  // override get to enfore select and expand for our fields to always optimize
+  // overrise getAs method with custom parser
   public getAs<T>(parser?: ODataParser<MyDocument>, getOptions?: FetchOptions): Promise<T> {
     this
       ._setCustomQueryFromDecorator("select")

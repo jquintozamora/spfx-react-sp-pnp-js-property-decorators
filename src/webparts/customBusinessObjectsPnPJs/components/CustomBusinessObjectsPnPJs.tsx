@@ -245,6 +245,17 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log("#  Query document collection  #");
       console.log("###############################");
       console.log("*************************************************************");
+      console.log("***  Document Collection selecting all properties");
+      console.log("*************************************************************");
+      const myDocumentCollection: any = await pnp.sp
+        .web
+        .lists
+        .getByTitle(libraryName)
+        .items
+        .get();
+      console.log(myDocumentCollection);
+
+      console.log("*************************************************************");
       console.log("***  Document Collection using as(MyDocument) and get()");
       console.log("*************************************************************");
       const myDocumentsWithCustomObjectAsDocumentGet: MyDocument[] = await pnp.sp

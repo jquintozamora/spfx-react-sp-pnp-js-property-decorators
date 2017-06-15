@@ -70,6 +70,7 @@ export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
   }
 }
 
+// utils class
 class SelectDecoratorsUtils {
   // get only custom model properties with @select decorator and return single item
   static ProcessSingle(combinedWithResults: any, symbolKey: string): any {

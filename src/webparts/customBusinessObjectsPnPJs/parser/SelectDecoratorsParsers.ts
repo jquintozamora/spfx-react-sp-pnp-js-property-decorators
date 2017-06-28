@@ -6,6 +6,10 @@ import { getEntityUrl } from "sp-pnp-js/lib/sharepoint/odata";
 import { getSymbol } from "../utils/symbol";
 
 
+/**
+ * Custom Response Array Parser to be integrated with @select and @expand decorators
+ *  It can be used on PnP Core JS get() method as a parameter
+ */
 export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
   private _returnOnlySelectedWithDecorators = false;
   constructor(protected factory: QueryableConstructor<T>, returnOnlySelectedWithDecorators?: boolean) {
@@ -39,6 +43,10 @@ export class SelectDecoratorsArrayParser<T> extends ODataParserBase<T[]> {
   }
 }
 
+/**
+ * Custom Response Parser to be integrated with @select and @expand decorators
+ *  It can be used on PnP Core JS get() method as a parameter
+ */
 export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
   private _returnOnlySelectedWithDecorators = false;
   constructor(protected factory: QueryableConstructor<T>, returnOnlySelectedWithDecorators?: boolean) {
@@ -73,7 +81,7 @@ export class SelectDecoratorsParser<T> extends ODataParserBase<T> {
 // utils class
 class SelectDecoratorsUtils {
   // get only custom model properties with @select decorator and return single item
-  static ProcessSingle(combinedWithResults: any, symbolKey: string): any {
+  public static ProcessSingle(combinedWithResults: any, symbolKey: string): any {
     const arrayprops: { propName: string, queryName: string }[] = combinedWithResults[symbolKey];
     let newObj = {};
     arrayprops.forEach((item) => {
@@ -83,7 +91,7 @@ class SelectDecoratorsUtils {
   }
 
   // get only custom model properties with @select decorator and return item collection
-  static ProcessCollection(combinedWithResults: any[], symbolKey: string): any[] {
+  public static ProcessCollection(combinedWithResults: any[], symbolKey: string): any[] {
     let newArray: any[] = [];
     const arrayprops: { propName: string, queryName: string }[] = combinedWithResults[symbolKey];
     for (let i: number = 0; i < combinedWithResults.length; i++) {
@@ -97,7 +105,7 @@ class SelectDecoratorsUtils {
     return newArray;
   }
 
-  static GetDescendantProp(obj, objectString: string) {
+  private static GetDescendantProp(obj, objectString: string) {
     var arr: string[] = objectString.split("/");
     if (arr.length > 1 && arr[0] !== "") {
       while (arr.length) {

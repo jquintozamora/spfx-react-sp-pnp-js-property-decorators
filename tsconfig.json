@@ -6,19 +6,11 @@
     "jsx": "react",
     "declaration": true,
     "sourceMap": true,
+    "experimentalDecorators": true,
     "types": [
       "es6-promise",
       "es6-collections",
       "webpack-env"
-    ],
-    "lib": [
-      // defaults with target: es5
-      "dom",
-      "es5",
-      "scripthost"
-      // additions
-      //"es2015.symbol"
-    ],
-    "experimentalDecorators": true
+    ]
   }
 }

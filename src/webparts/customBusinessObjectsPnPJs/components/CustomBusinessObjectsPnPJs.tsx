@@ -16,6 +16,11 @@ import pnp from "sp-pnp-js";
 import { ICustomBusinessObjectsPnPJsProps } from "./ICustomBusinessObjectsPnPJsProps";
 import { ICustomBusinessObjectsPnPJsState } from "./ICustomBusinessObjectsPnPJsState";
 
+import SyntaxHighlighter, { registerLanguage } from "react-syntax-highlighter/dist/light"
+import ts from 'react-syntax-highlighter/dist/languages/typescript';
+import docco from 'react-syntax-highlighter/dist/styles/docco';
+registerLanguage('typescript', ts);
+
 export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomBusinessObjectsPnPJsProps, ICustomBusinessObjectsPnPJsState> {
 
   constructor(props: ICustomBusinessObjectsPnPJsProps) {
@@ -23,7 +28,8 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     // set initial state
     this.state = {
       myDocuments: [],
-      errors: []
+      errors: [],
+      libraryName: "Documents"
     };
 
     // normally we don't need to bind the functions as we use arrow functions and do automatically the bing
@@ -31,6 +37,64 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     // but using Async function we can't convert it into arrow function, so we do the binding here
     this._loadPnPJsLibrary.bind(this);
 
+  }
+
+  private _firstCode = async ()  =>  {
+    console.log("*************************************************************");
+    console.log("***  One document selecting all properties");
+    console.log("*************************************************************");
+    const myDocument: any = await pnp.sp
+      .web
+      .lists
+      .getByTitle(this.state.libraryName)
+      .items
+      .getById(1)
+      .get();
+    // query all item's properties
+    console.log(myDocument);
+  }
+
+  private _getCode(): any {
+    var code = `
+console.log("*********************************************");
+console.log("***  One document selecting all properties   ");
+console.log("*********************************************");
+const myDocument: any = await pnp.sp
+  .web
+  .lists
+  .getByTitle(libraryName)
+  .items
+  .getById(1)
+  .get();
+// query all item's properties
+console.log(myDocument);
+    `;
+    var code2 = "var i = 0;";
+    var options = {
+      lineNumbers: true,
+      readOnly: true
+    };
+    return (
+      <SyntaxHighlighter language='typescript' style={docco}>{code}</SyntaxHighlighter>
+    );
+  }
+
+  private _playCode() {
+    var code = `
+console.log("*********************************************");
+console.log("***  One document selecting all properties   ");
+console.log("*********************************************");
+const myDocument: any = await pnp.sp
+  .web
+  .lists
+  .getByTitle(libraryName)
+  .items
+  .getById(1)
+  .get();
+// query all item's properties
+console.log(myDocument);
+    `;
+    eval(code);
   }
 
   public render(): React.ReactElement<ICustomBusinessObjectsPnPJsProps> {
@@ -41,6 +105,12 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
             <span className="ms-font-xl ms-fontColor-white">Welcome to Custom Business Objects, Decorators and Renders Demo!</span>
             <div>
               {this._gerErrors()}
+            </div>
+            <div>
+              {this._getCode()}
+            </div>
+            <div>
+              <button onClick={this._firstCode}>Play</button>
             </div>
             <p className="ms-font-l ms-fontColor-white">List of documents:</p>
             <div>

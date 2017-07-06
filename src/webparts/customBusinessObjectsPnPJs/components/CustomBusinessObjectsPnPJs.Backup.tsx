@@ -28,7 +28,28 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       libraryName: "Documents"
     };
 
+    // normally we don't need to bind the functions as we use arrow functions and do automatically the bing
+    // http://bit.ly/reactArrowFunction
+    // but using Async function we can't convert it into arrow function, so we do the binding here
+    this._loadPnPJsLibrary.bind(this);
+
   }
+
+  private _firstCode = async ()  =>  {
+    console.log("*************************************************************");
+    console.log("***  One document selecting all properties");
+    console.log("*************************************************************");
+    const myDocument: any = await pnp.sp
+      .web
+      .lists
+      .getByTitle(this.state.libraryName)
+      .items
+      .getById(1)
+      .get();
+    // query all item's properties
+    console.log(myDocument);
+  }
+
 
   public render(): React.ReactElement<ICustomBusinessObjectsPnPJsProps> {
     return (
@@ -68,7 +89,7 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
     this._loadPnPJsLibrary(libraryName);
   }
 
-  private _loadPnPJsLibrary = async (libraryName: string): Promise<void> => {
+  private async _loadPnPJsLibrary(libraryName: string): Promise<void> {
     console.log("loadPnPJsLibrary");
     try {
 
@@ -127,11 +148,9 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(itemCustomObject);
 
 
-
       console.log("#############################");
       console.log("#  Query only one document  #");
       console.log("#############################");
-
       console.log("*************************************************************");
       console.log("***  One document selecting all properties");
       console.log("*************************************************************");
@@ -240,12 +259,9 @@ export default class CustomBusinessObjectsPnPJs extends React.Component<ICustomB
       console.log(myDocumentWithCustomObjectGetAs);
 
 
-
-
       console.log("###############################");
       console.log("#  Query document collection  #");
       console.log("###############################");
-
       console.log("*************************************************************");
       console.log("***  Document Collection selecting all properties");
       console.log("*************************************************************");

@@ -1,0 +1,22 @@
+.container {
+  max-width: 900px;
+  margin: 0px auto;
+  padding: 20px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+}
+
+.tab {
+  text-align: center;
+}
+
+.tabContent {
+  background-color: white !important;
+}
+
+:global .nav-tabs {
+  background-color: white;
+}
+
+:global .tab-pane {
+  padding-top: 1px !important;
+}

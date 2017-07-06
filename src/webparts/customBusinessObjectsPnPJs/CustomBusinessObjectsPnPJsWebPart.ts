@@ -1,21 +1,24 @@
-import * as React from 'react';
-import * as ReactDom from 'react-dom';
-import { Version } from '@microsoft/sp-core-library';
+import * as React from "react";
+import * as ReactDom from "react-dom";
+import { Version } from "@microsoft/sp-core-library";
 import {
   BaseClientSideWebPart,
   IPropertyPaneConfiguration,
   PropertyPaneTextField
-} from '@microsoft/sp-webpart-base';
+} from "@microsoft/sp-webpart-base";
 
-import * as strings from 'customBusinessObjectsPnPJsStrings';
-import CustomBusinessObjectsPnPJs from './components/CustomBusinessObjectsPnPJs';
-import { ICustomBusinessObjectsPnPJsProps } from './components/ICustomBusinessObjectsPnPJsProps';
-import { ICustomBusinessObjectsPnPJsWebPartProps } from './ICustomBusinessObjectsPnPJsWebPartProps';
+import * as strings from "customBusinessObjectsPnPJsStrings";
+import CustomBusinessObjectsPnPJs from "./components/CustomBusinessObjectsPnPJs";
+import { ICustomBusinessObjectsPnPJsProps } from "./components/ICustomBusinessObjectsPnPJsProps";
+import { ICustomBusinessObjectsPnPJsWebPartProps } from "./ICustomBusinessObjectsPnPJsWebPartProps";
+
+import CodeSlider from "./components/CodeSlider/CodeSlider";
+import { ICodeSliderProps } from "./components/CodeSlider/ICodeSliderProps";
 
 import pnp, {
-    Logger,
-    ConsoleListener,
-    LogLevel
+  Logger,
+  ConsoleListener,
+  LogLevel
 } from "sp-pnp-js";
 
 export default class CustomBusinessObjectsPnPJsWebPart extends BaseClientSideWebPart<ICustomBusinessObjectsPnPJsWebPartProps> {
@@ -36,10 +39,20 @@ export default class CustomBusinessObjectsPnPJsWebPart extends BaseClientSideWeb
   }
 
   public render(): void {
-    const element: React.ReactElement<ICustomBusinessObjectsPnPJsProps> = React.createElement(
-      CustomBusinessObjectsPnPJs,
+
+    // Blog demo: https://blog.josequinto.com/2017/05/19/why-do-we-should-use-custom-business-objects-models-in-pnp-js-core/
+    // const element: React.ReactElement<ICustomBusinessObjectsPnPJsProps> = React.createElement(
+    //   CustomBusinessObjectsPnPJs,
+    //   {
+    //     description: this.properties.description
+    //   }
+    // );
+
+    // PnP SIG Demo
+    const element: React.ReactElement<ICodeSliderProps> = React.createElement(
+      CodeSlider,
       {
-        description: this.properties.description
+        title: "PnP JS Core - Custom Business Objects DEMO!"
       }
     );
 
@@ -47,7 +60,7 @@ export default class CustomBusinessObjectsPnPJsWebPart extends BaseClientSideWeb
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse("1.0");
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
@@ -61,7 +74,7 @@ export default class CustomBusinessObjectsPnPJsWebPart extends BaseClientSideWeb
             {
               groupName: strings.BasicGroupName,
               groupFields: [
-                PropertyPaneTextField('description', {
+                PropertyPaneTextField("description", {
                   label: strings.DescriptionFieldLabel
                 })
               ]

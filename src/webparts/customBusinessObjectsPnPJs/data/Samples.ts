@@ -18,6 +18,9 @@ export interface ICodeSample {
   codeText: () => string;
 }
 
+// TODO: Investigate webpack custom plugin to get the function text automatically
+
+
 export const samples: ICodeSample[] = [
   {
     title: "PnP JS Core WITHOUT custom objects",
